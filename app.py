@@ -2,13 +2,16 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_restful import Api, Resource
+from flask_migrate import Migrate
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SECRET_KEY'] = 'w8oyUPlywjAAN51OXBdfJUZ8icsRCCP7'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/exemplo_flask_rest_api'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 api = Api(app)
-
+Migrate(app,db, compare_type = True)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,7 +64,7 @@ class PostResource(Resource):
 
     def delete(self, post_id):
         post = Post.query.get_or_404(post_id)
-        post.delete()
+        db.session.delete(post)
         db.session.commit()
         return '', 204
 
